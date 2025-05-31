@@ -6,6 +6,7 @@ import (
 
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/conn/v3/physic"
 	"periph.io/x/conn/v3/spi"
 	"periph.io/x/conn/v3/spi/spireg"
 	"periph.io/x/host/v3"
@@ -39,7 +40,7 @@ func New(cfg *Config) (*SH1122, error) {
 	if err != nil {
 		return nil, err
 	}
-	c, err := p.Connect(0, spi.Mode0, 8)
+	c, err := p.Connect(1*physic.MegaHertz, spi.Mode0, 8)
 	if err != nil {
 		p.Close()
 		return nil, err
