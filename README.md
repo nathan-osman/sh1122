@@ -28,7 +28,7 @@ func main() {
     defer s.Close()
 
     // Turn the display on
-    if err := s.SetDisplay(true) {
+    if err := s.SetDisplay(true); err != nil {
         panic(err)
     }
 
