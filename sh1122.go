@@ -1,10 +1,21 @@
 package sh1122
 
 import (
+	"image"
+	"time"
+
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/spi"
 	"periph.io/x/conn/v3/spi/spireg"
+)
+
+const (
+	// Width indicates the number of horizontal pixels.
+	Width = 256
+
+	// Height indicates the number of vertical pixels.
+	Height = 64
 )
 
 // SH1122 provides an interface for controlling SH1122 devices connected via SPI.
@@ -14,6 +25,7 @@ type SH1122 struct {
 	rstPin gpio.PinIO
 	dcPin  gpio.PinIO
 	csPin  gpio.PinIO
+	img    *image.Paletted
 }
 
 // New creates a new SH1122 instance.
@@ -27,13 +39,34 @@ func New(cfg *Config) (*SH1122, error) {
 		p.Close()
 		return nil, err
 	}
-	return &SH1122{
+	s := &SH1122{
 		port:   p,
 		conn:   c,
 		rstPin: gpioreg.ByName(cfg.RSTPin),
 		dcPin:  gpioreg.ByName(cfg.DCPin),
 		csPin:  gpioreg.ByName(cfg.CSPin),
-	}, nil
+		img:    image.NewPaletted(image.Rect(0, 0, Width, Height), palette),
+	}
+	if err := s.init(); err != nil {
+		p.Close()
+		return nil, err
+	}
+	return s, nil
+}
+
+func (s *SH1122) init() error {
+	if err := s.rstPin.Out(gpio.High); err != nil {
+		return err
+	}
+	time.Sleep(10 * time.Millisecond)
+	if err := s.rstPin.Out(gpio.Low); err != nil {
+		return err
+	}
+	time.Sleep(10 * time.Millisecond)
+	if err := s.rstPin.Out(gpio.High); err != nil {
+		return err
+	}
+	return s.csPin.Out(gpio.High)
 }
 
 // Close shuts down the SH1122 device.
