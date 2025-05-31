@@ -25,7 +25,8 @@ var palette = []color.Color{
 	color.RGBA{0xff, 0xff, 0xff, 0xff},
 }
 
-// Flip blits the content of the internal buffer to the display.
+// Flip blits the content of the internal buffer to the display. This is done
+// using two SPI transfers since the SPI buffer is usually limited to 4096.
 func (s *SH1122) Flip() error {
 	b := make([]byte, (Width*Height)/2)
 	for y := 0; y < Height; y++ {
@@ -35,5 +36,8 @@ func (s *SH1122) Flip() error {
 			b[(y*Width+x)/2] = (p1 << 4) | p2
 		}
 	}
-	return s.send(b, false)
+	if err := s.send(b, false); err != nil {
+		return s.send(b[:4096], false)
+	}
+	return s.send(b[4096:], false)
 }
