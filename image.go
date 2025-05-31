@@ -2,6 +2,8 @@ package sh1122
 
 import (
 	"image/color"
+
+	"periph.io/x/conn/v3"
 )
 
 // Image data sent to the display is 4-bit
@@ -26,7 +28,7 @@ var palette = []color.Color{
 }
 
 // Flip blits the content of the internal buffer to the display. This is done
-// using two SPI transfers since the SPI buffer is usually limited to 4096.
+// using multiple SPI transfers if needed (due to internal limits).
 func (s *SH1122) Flip() error {
 	b := make([]byte, (Width*Height)/2)
 	for y := 0; y < Height; y++ {
@@ -36,8 +38,10 @@ func (s *SH1122) Flip() error {
 			b[(y*Width+x)/2] = (p1 << 4) | p2
 		}
 	}
-	if err := s.send(b, false); err != nil {
-		return s.send(b[:4096], false)
+	max := s.conn.(conn.Limits).MaxTxSize()
+	for len(b) > max {
+		s.send(b[:max], false)
+		b = b[max:]
 	}
-	return s.send(b[4096:], false)
+	return s.send(b, false)
 }
