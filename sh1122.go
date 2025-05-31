@@ -8,6 +8,7 @@ import (
 	"periph.io/x/conn/v3/gpio/gpioreg"
 	"periph.io/x/conn/v3/spi"
 	"periph.io/x/conn/v3/spi/spireg"
+	"periph.io/x/host/v3"
 )
 
 const (
@@ -30,6 +31,10 @@ type SH1122 struct {
 
 // New creates a new SH1122 instance.
 func New(cfg *Config) (*SH1122, error) {
+	_, err := host.Init()
+	if err != nil {
+		return nil, err
+	}
 	p, err := spireg.Open(cfg.Port)
 	if err != nil {
 		return nil, err
