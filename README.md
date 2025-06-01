@@ -10,6 +10,11 @@ The following example assumes an SSH1122 is connected to a Raspberry Pi Zero via
 package main
 
 import (
+    "image"
+    "image/draw"
+    "image/jpeg"
+    "net/http"
+
     "github.com/nathan-osman/sh1122"
 )
 
@@ -31,6 +36,24 @@ func main() {
     if err := s.SetDisplay(true); err != nil {
         panic(err)
     }
+
+    // Draw to device as if it were an image!
+
+    // Fetch an image from the web
+    r, err := http.Get("https://f.qms.li/samples/franklin-256x64.jpg")
+    if err != nil {
+        panic(err)
+    }
+    defer r.Body.Close()
+
+    // Decode it
+    i, err := jpeg.Decode(r.Body)
+    if err != nil {
+        panic(err)
+    }
+
+    // Draw it!
+    draw.Draw(s, s.Bounds(), i, image.Point{}, draw.Src)
 
     // Flip what we've drawn to the display
     if err := s.Flip(); err != nil {
