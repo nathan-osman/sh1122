@@ -1,6 +1,7 @@
 package sh1122
 
 import (
+	"image"
 	"image/color"
 
 	"periph.io/x/conn/v3"
@@ -25,6 +26,24 @@ var palette = []color.Color{
 	color.RGBA{0xdd, 0xdd, 0xdd, 0xff},
 	color.RGBA{0xee, 0xee, 0xee, 0xff},
 	color.RGBA{0xff, 0xff, 0xff, 0xff},
+}
+
+// draw.Image methods:
+
+func (s *SH1122) ColorModel() color.Model {
+	return s.img.ColorModel()
+}
+
+func (s *SH1122) Bounds() image.Rectangle {
+	return s.img.Bounds()
+}
+
+func (s *SH1122) At(x, y int) color.Color {
+	return s.img.At(x, y)
+}
+
+func (s *SH1122) Set(x, y int, c color.Color) {
+	s.img.Set(x, y, c)
 }
 
 // Flip blits the content of the internal buffer to the display. This is done
