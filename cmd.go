@@ -8,7 +8,7 @@ const (
 // SetDisplay turns the screen on or off depending on the provided parameter.
 func (s *SH1122) SetDisplay(on bool) error {
 	if on {
-		return s.send([]byte{cmdSET_DISP & 0x01}, true)
+		return s.send([]byte{cmdSET_DISP | 0x01}, true)
 	} else {
 		return s.send([]byte{cmdSET_DISP}, true)
 	}
