@@ -27,7 +27,7 @@ type SH1122 struct {
 	rstPin gpio.PinIO
 	dcPin  gpio.PinIO
 	csPin  gpio.PinIO
-	img    *image.Paletted
+	img    *image.Gray
 }
 
 // New creates a new SH1122 instance.
@@ -51,7 +51,7 @@ func New(cfg *Config) (*SH1122, error) {
 		rstPin: gpioreg.ByName(cfg.RSTPin),
 		dcPin:  gpioreg.ByName(cfg.DCPin),
 		csPin:  gpioreg.ByName(cfg.CSPin),
-		img:    image.NewPaletted(image.Rect(0, 0, Width, Height), palette),
+		img:    image.NewGray(image.Rect(0, 0, Width, Height)),
 	}
 	if err := s.init(); err != nil {
 		p.Close()
